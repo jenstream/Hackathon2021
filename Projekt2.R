@@ -49,11 +49,11 @@ test_daten_b$latitude
 test_daten_b$longitude
 View(test_daten_b)
 
-PLZMerge <- merge(x = test_daten_b, y = BewerMerge, by.x = "bewerber_id", by.y = "bewerber_id", all.x = TRUE) %>% 
- # select("bewerber_id", "plz", "search", "lat", "long", "semester", "jahr")
+PLZMerge <- merge(x = test_daten_b, y = BewerMerge, by.x = "bewerber_id", by.y = "bewerber_id", all.x = TRUE) %>%
+  select("bewerber_id", "plz.x", "search", "lat", "long", "semester", "jahr")
 View(PLZMerge)
 
-
+write.csv(PLZMerge,"/home/jens/Hackathon2021/PLZmerge.csv", row.names = FALSE)
 
 #Analyse Bewerb pro Jahr
 BewerbungenJahr <- BewerMerge %>% count(jahr)
