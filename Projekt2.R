@@ -1,7 +1,12 @@
-install.packages("readxl")
-install.packages("tidyverse")
-install.packages("shiny")
+#install.packages("readxl")
+#install.packages("tidyverse")
+#install.packages("shiny")
+#install.packages("tidygeocoder")
+#install.packages("sf")
+#install.packages("mapview")
 
+library(tidyr)
+library(tidygeocoder)
 library("tidyverse")
 library("readxl")
 library("ggplot2")
@@ -28,6 +33,26 @@ BewerMerge <- merge(x = Bewerber, y = Bewerbungen, by.x = "bewerbungen", by.y = 
          "aws_am", "ergebnis_aws", "zusage_für_semester", "studienplatz_angenommen", "verschoben_bis_semester", 
          "grund_für_absageverschiebung", "bewerbungsgebühr_erlassen", "doppelstudium")
 View(BewerMerge)
+
+
+BewerbungenPLZ <- BewerMerge %>% select("bewerber_id", "plz")
+View(BewerbungenPLZ)
+test_daten <- data.frame(BewerbungenPLZ = c("bewerber_id"), Ort =c("plz"))
+
+#Adresse geocoden
+test_daten_b <-BewerbungenPLZ %>%
+  add_column(type = "location") %>%
+  mutate(search = paste0("germany ", plz)) %>%
+geocode(address = search, method = "osm", verbose = TRUE)
+test_daten_b
+test_daten_b$latitude
+test_daten_b$longitude
+View(test_daten_b)
+
+PLZMerge <- merge(x = test_daten_b, y = BewerMerge, by.x = "bewerber_id", by.y = "bewerber_id", all.x = TRUE) %>% 
+ # select("bewerber_id", "plz", "search", "lat", "long", "semester", "jahr")
+View(PLZMerge)
+
 
 
 #Analyse Bewerb pro Jahr
@@ -130,13 +155,46 @@ BewerbungenGeschlJahrAnteilPlot
 
 
 #Analyse Geschlechterverteilung pro Studiengang
-BerbungenGeschlechtStudiengang <- BewerMerge %>% count(geschlecht, studiengang)
-View(BewerbungenGeschlechtStudiengang)
-
-#Analyse 
 BewerbungenGeschlechtStudiengang <- BewerMerge %>% count(geschlecht, studiengang)
 View(BewerbungenGeschlechtStudiengang)
+BewerbungenGeschlStudgPlot <- ggplot(data=BewerbungenGeschlechtStudiengang, aes(x=studiengang, y=n, fill=geschlecht)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=n), vjust=1.6, color="black", position = position_dodge(0.9), size=3.5)+
+  theme_minimal() +
+  scale_fill_manual(values=c('steelblue','pink', 'purple')) +
+  labs(title="Bewerbungen nach Geschlechtern", 
+       x="Semester", y = "Anz. Bewerbungen")
+BewerbungenGeschlStudgPlot
 
+
+#Analyse Geschlechterverteilung pro Jahr
+BewerbungenGeschlechtStudiengangAnteil <- BewerbungenGeschlechtStudiengang %>%
+  arrange(studiengang, geschlecht) %>%
+  group_by(studiengang)  %>%
+  #summarise (n=n()) %>%
+  mutate(rel.freq = paste0(round(100 * n/sum(n), 1), "%"))  #%>%
+# mutate (anteil = n/sum(n))   # %>%
+#select("jahr", "geschlecht", "n", "anteil")
+View(BewerbungenGeschlechtStudiengangAnteil)
+BewerbungenGeschlStudAnteilPlot <- ggplot(data=BewerbungenGeschlechtStudiengangAnteil, aes(x=studiengang, y=rel.freq, fill=geschlecht)) +
+  geom_bar(stat="identity") +
+  #apply(data, 2, function(x){x*100/sum(x,na.rm=T)})+
+  geom_text(aes(label=rel.freq), vjust=1.6, color="black", position = position_dodge(0.9), size=3.5)+
+  theme_minimal() +
+  scale_fill_manual(values=c('steelblue','pink', 'purple')) +
+  labs(title="Bewerbungen nach Geschlechtern", 
+       x="Semester", y = "Anz. Bewerbungen")
+BewerbungenGeschlStudAnteilPlot
+
+
+
+
+library(tidygeocoder)
+
+address_single <- tibble(singlelineaddress = c(
+  "germany 51103",
+  "germany 12345"
+)) %>% geocode(address = singlelineaddress, method = "osm", verbose = TRUE)
 
 
 
