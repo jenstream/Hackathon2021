@@ -10,7 +10,7 @@ library(tidygeocoder)
 library("tidyverse")
 library("readxl")
 library("ggplot2")
-library("shiny")
+
 
 Bewerber <- read_excel("/home/jens/Documents/2021 WS Data Science II/Daten Bewerbungen/BewerberFIN2.xlsx")
 names(Bewerber) <- gsub("-| ", "_", names(Bewerber)) %>% tolower() %>% gsub("[()./]", "", .)
@@ -53,7 +53,7 @@ PLZMerge <- merge(x = test_daten_b, y = BewerMerge, by.x = "bewerber_id", by.y =
   select("bewerber_id", "plz.x", "search", "lat", "long", "semester", "jahr")
 View(PLZMerge)
 
-write.csv(PLZMerge,"/home/jens/Hackathon2021/PLZmerge.csv", row.names = FALSE)
+#write.csv(PLZMerge,"/home/jens/Hackathon2021/PLZmerge.csv", row.names = FALSE)
 
 #Analyse Bewerb pro Jahr
 BewerbungenJahr <- BewerMerge %>% count(jahr)
@@ -66,10 +66,6 @@ labs(title="Bewerbungen pro Jahr gesamt",
      x="Jahr", y = "Anz. Bewerbungen")
 BewerbungsnJahrPlot
 
-
-#Analyse PLZ pro Jahr
-BewerbungenPLZJahr <- BewerMerge %>% select(jahr,plz)
-View(BewerbungenPLZJahr)
 
 
 #Analyse Bewerb pro Jahr Master BA
